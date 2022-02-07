@@ -1,0 +1,18 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: file-store
+  labels:
+    app.kubernetes.io/name: file-store
+    app.kubernetes.io/version: 1.0.0
+spec:
+  policyTypes:
+    - Ingress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: file-store
+      app.kubernetes.io/version: 1.0.0
+  ingress:
+    - ports:
+      - port: http

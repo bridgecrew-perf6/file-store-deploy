@@ -1,0 +1,58 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: file-store
+  labels:
+    app.kubernetes.io/name: file-store 
+    app.kubernetes.io/version: 1.0.0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: file-store
+      app.kubernetes.io/version: 1.0.0
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: file-store 
+        app.kubernetes.io/version: 1.0.0
+    spec:       
+      securityContext:
+        fsGroup: 999
+        runAsGroup: 999
+        runAsUser: 999
+      volumes:
+        - name: config
+          configMap:
+            name: file-store
+            items:
+              - key: config.yaml
+                path: config.yaml
+        - name: database
+          persistentVolumeClaim:
+            claimName: file-store
+      containers:
+        - name: file-store
+          image: "registry.app.corpintra.net/sayan-biswas/file-store:latest"
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: /etc/store/config.yaml
+              subPath: config.yaml
+              readOnly: true
+            - name: database
+              mountPath: /database
+              readOnly: false
+          resources:
+            limits:
+              cpu: 500m
+              memory: 2G
+            requests:
+              cpu: 100m
+              memory: 1G
+      
